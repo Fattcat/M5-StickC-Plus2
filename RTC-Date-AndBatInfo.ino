@@ -1,16 +1,19 @@
 #include <M5Unified.h>
 #include <time.h>
 
-// Premenné pre fade efekt
+// Fade farby
 int red = 0, green = 255, blue = 0;
 int colorStep = 5;
 int colorState = 0;
 
-// Inicializačný RTC čas (z času kompilácie)
+// Premenná pre sledovanie hodiny
+int lastHour = -1;
+
+// Inicializačný RTC čas z času kompilácie
 void setCompileTimeRTC() {
   struct tm tm;
-  const char *compile_date = __DATE__; // napr. "Apr 10 2025"
-  const char *compile_time = __TIME__; // napr. "14:35:20"
+  const char *compile_date = __DATE__;
+  const char *compile_time = __TIME__;
 
   // Parsovanie dátumu
   char month_str[4];
@@ -21,7 +24,7 @@ void setCompileTimeRTC() {
   int hour, minute, second;
   sscanf(compile_time, "%d:%d:%d", &hour, &minute, &second);
 
-  // Konverzia názvu mesiaca na číslo
+  // Konverzia názvu mesiaca
   const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
   int month = (strstr(months, month_str) - months) / 3 + 1;
 
@@ -35,7 +38,7 @@ void setCompileTimeRTC() {
 
   time_t t = mktime(&tm);
   struct timeval now = { .tv_sec = t };
-  settimeofday(&now, nullptr); // Nastavenie času zariadenia
+  settimeofday(&now, nullptr);
 }
 
 void setup() {
@@ -44,53 +47,52 @@ void setup() {
   M5.Lcd.setTextSize(2);
   M5.Lcd.setTextColor(WHITE);
   M5.Lcd.fillScreen(WHITE);
-
-  setCompileTimeRTC(); // Nastavenie RTC podľa času kompilácie
+  setCompileTimeRTC();
 }
 
 void loop() {
-  // Napätie batérie
   float battery_voltage = analogRead(35);
   battery_voltage = battery_voltage * (3.3 / 4095.0) * 2;
   int battery_percentage = (battery_voltage - 3.2) / (4.2 - 3.2) * 100;
+  battery_percentage = constrain(battery_percentage, 0, 100);
 
-  if (battery_percentage > 100) battery_percentage = 100;
-  if (battery_percentage < 0) battery_percentage = 0;
-
-  // Zmena farby pozadia
   M5.Lcd.fillScreen(M5.Lcd.color565(red, green, blue));
-
   int centerX = 100;
 
-  // Výpis Batéria
   M5.Lcd.setCursor(centerX - 70, 10);
   M5.Lcd.print("Bateria : ");
   M5.Lcd.print(battery_percentage);
   M5.Lcd.print("%");
 
-  // Výpis Volty
   M5.Lcd.setCursor(centerX - 70, 40);
   M5.Lcd.print("Volty   : ");
   M5.Lcd.print(battery_voltage, 2);
 
-  // Výpis času a dátumu
   struct tm timeinfo;
   if (getLocalTime(&timeinfo)) {
-    char timeStr[6]; // HH:MM
-    char dateStr[11]; // DD.MM.YYYY
-
+    char timeStr[6], dateStr[11];
     strftime(timeStr, sizeof(timeStr), "%H:%M", &timeinfo);
     strftime(dateStr, sizeof(dateStr), "%d.%m.%Y", &timeinfo);
 
-    // Čas
     M5.Lcd.setCursor(centerX - 70, 70);
     M5.Lcd.print("Cas     : ");
     M5.Lcd.print(timeStr);
 
-    // Dátum
     M5.Lcd.setCursor(centerX - 90, 100);
     M5.Lcd.print("Datum : ");
     M5.Lcd.print(dateStr);
+
+    // Kontrola či nastala nová celá hodina
+    if (timeinfo.tm_min == 0 && timeinfo.tm_hour != lastHour) {
+      lastHour = timeinfo.tm_hour;
+
+      // Zabzuč 2x
+      for (int i = 0; i < 2; i++) {
+        M5.Speaker.tone(1000, 200); // 1000 Hz, 200 ms
+        delay(300); // malá pauza medzi bzučaním
+      }
+    }
+
   } else {
     M5.Lcd.setCursor(centerX - 70, 80);
     M5.Lcd.print("Cas     : --:--");
@@ -98,7 +100,7 @@ void loop() {
     M5.Lcd.print("Datum   : --.--.----");
   }
 
-  // Fade efekt farby
+  // Fade efekt farieb
   if (colorState == 0) {
     green -= colorStep;
     if (green <= 0) { green = 0; red += colorStep; if (red >= 255) { red = 255; colorState = 1; } }
