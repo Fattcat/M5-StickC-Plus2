@@ -3,8 +3,8 @@
 #include "time.h"
 
 // WiFi pripojenie
-const char* ssid     = "TP-Link_3997";
-const char* password = "59911579";
+const char* ssid     = "JoeSPass";
+const char* password = "Pass";
 
 // NTP server
 const char* ntpServer = "pool.ntp.org";
