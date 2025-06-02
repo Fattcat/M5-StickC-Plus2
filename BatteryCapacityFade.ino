@@ -1,3 +1,5 @@
+// Shows fake 100% for whole time, i dont know why.
+
 #include <M5Unified.h>
 
 int red = 0, green = 255, blue = 0; // Začíname so zelenou farbou
