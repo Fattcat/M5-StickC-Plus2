@@ -3,6 +3,6 @@ Basic codes for Simple use
 ## Available
 - [x] Battery Capacity info
 - [x] TFT Screen works
-- [ ] WiFi
+- [x] Evil Portal
 - [ ] Bluetooth
 - [ ] IR, Buzzer, buttons
